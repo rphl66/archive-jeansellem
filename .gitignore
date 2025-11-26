@@ -1,0 +1,64 @@
+#############
+# macOS
+#############
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails cache (macOS preview)
+._*
+
+# Finder metadata
+Icon?
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+#############
+# Node / NPM (si un jour utilisé)
+#############
+node_modules/
+npm-debug.log*
+package-lock.json
+yarn-error.log
+
+#############
+# Build / Temp
+#############
+dist/
+build/
+tmp/
+temp/
+*.tmp
+*.log
+
+#############
+# Archives diverses
+#############
+*.zip
+*.tar
+*.tar.gz
+
+#############
+# Fichiers système
+#############
+ehthumbs.db
+Thumbs.db
+
+#############
+# Sauvegardes / backups
+#############
+*.bak
+*.old
+*.orig
+
+#############
+# VSCode
+#############
+.vscode/
+*.code-workspace
+
+#############
+# JSON générés automatiquement (optionnel)
+#############
+*.dv.json
