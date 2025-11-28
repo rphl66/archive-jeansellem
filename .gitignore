@@ -62,3 +62,4 @@ Thumbs.db
 # JSON générés automatiquement (optionnel)
 #############
 *.dv.json
+.DS_Store
