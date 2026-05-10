@@ -33,6 +33,30 @@
     }, Promise.resolve());
   }
 
+  function notifyArchiveLoaded(mount){
+    try {
+      document.dispatchEvent(new CustomEvent("jsl:external-archive-loaded", {
+        detail: { mount: mount }
+      }));
+    } catch(e) {}
+
+    /*
+      Important pour Squarespace et tes scripts existants :
+      on simule un rechargement interne de page après injection.
+    */
+    try {
+      document.dispatchEvent(new Event("sqs:page:load"));
+    } catch(e) {}
+
+    try {
+      document.dispatchEvent(new Event("mercury:load"));
+    } catch(e) {}
+
+    try {
+      window.dispatchEvent(new Event("resize"));
+    } catch(e) {}
+  }
+
   function loadExternalArchive(mount){
     if (!mount || mount.dataset.jslLoaded === "1") return;
 
@@ -51,7 +75,10 @@
       })
       .then(function(html){
         mount.innerHTML = html;
-        return runScriptsInPlace(mount);
+
+        return runScriptsInPlace(mount).then(function(){
+          notifyArchiveLoaded(mount);
+        });
       })
       .catch(function(error){
         console.error("[JSL external archive loader]", error);
