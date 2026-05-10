@@ -1,7 +1,9 @@
 (function(){
   "use strict";
 
-  function executeScriptsSequentially(scripts){
+  function runScriptsInPlace(container){
+    var scripts = Array.prototype.slice.call(container.querySelectorAll("script"));
+
     return scripts.reduce(function(promise, oldScript){
       return promise.then(function(){
         return new Promise(function(resolve, reject){
@@ -15,10 +17,15 @@
             newScript.onload = resolve;
             newScript.onerror = reject;
             newScript.src = oldScript.src;
-            document.body.appendChild(newScript);
           } else {
             newScript.textContent = oldScript.textContent;
-            document.body.appendChild(newScript);
+          }
+
+          if (oldScript.parentNode) {
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+          }
+
+          if (!oldScript.src) {
             resolve();
           }
         });
@@ -43,22 +50,8 @@
         return response.text();
       })
       .then(function(html){
-        var temp = document.createElement("div");
-        temp.innerHTML = html;
-
-        var scripts = Array.prototype.slice.call(temp.querySelectorAll("script"));
-
-        scripts.forEach(function(script){
-          if (script.parentNode) script.parentNode.removeChild(script);
-        });
-
-        mount.innerHTML = "";
-
-        while (temp.firstChild) {
-          mount.appendChild(temp.firstChild);
-        }
-
-        return executeScriptsSequentially(scripts);
+        mount.innerHTML = html;
+        return runScriptsInPlace(mount);
       })
       .catch(function(error){
         console.error("[JSL external archive loader]", error);
