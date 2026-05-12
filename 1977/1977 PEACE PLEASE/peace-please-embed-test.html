@@ -68,19 +68,19 @@ html body > .jsl-overlay[data-owner="jsl-peace-please-archive-v7-intro-stable"].
 
 <div class="jsl-overlay" data-overlay data-owner="jsl-peace-please-archive-v7-intro-stable" aria-hidden="true">
   <div class="jsl-inner">
-   <div class="jsl-bar">
-  <div>
-    <button type="button" data-prev>Previous</button>
-    <button type="button" data-next>Next</button>
-    <button type="button" data-first>⇤</button>
-    <button type="button" data-reset-view>RESET</button>
-    <button type="button" data-rotate-left>⟲ 90°</button>
-    <button type="button" data-rotate-right>⟳ 90°</button>
-    <button type="button" data-toggle-image-zoom>ZOOM IMAGE</button>
-    <button type="button" data-toggle-thumb-grid>GRID</button>
-    <button type="button" data-viewer-artists>Contributors A-Z</button>
-<span data-counter></span>
-  </div>
+    <div class="jsl-bar">
+      <div>
+        <button type="button" data-prev title="Previous" aria-label="Previous">‹</button>
+        <button type="button" data-next title="Next" aria-label="Next">›</button>
+        <button type="button" data-first title="First" aria-label="First">⇤</button>
+        <button type="button" data-reset-view title="Reset" aria-label="Reset">↺</button>
+        <button type="button" data-rotate-left title="Rotate left" aria-label="Rotate left">⟲ 90°</button>
+        <button type="button" data-rotate-right title="Rotate right" aria-label="Rotate right">⟳ 90°</button>
+        <button type="button" data-toggle-image-zoom title="Zoom" aria-label="Zoom">⌕</button>
+        <button type="button" data-toggle-thumb-grid title="Grid" aria-label="Grid">▦</button>
+        <button type="button" data-viewer-artists title="Index A-Z" aria-label="Index A-Z">A-Z</button>
+        <span data-counter></span>
+      </div>
 
   <div>
     <button type="button" data-return-doc style="display:none;">↩</button>
@@ -137,20 +137,20 @@ html body > .jsl-overlay[data-owner="jsl-peace-please-archive-v7-intro-stable"].
     openBefore:'Documents',
     openTelex:'Telex',
     openPress:'Press',
-    contributors:'INDEX',
-    hideContributors:'HIDE INDEX',
-    titles:'INDEX',
-    hideTitles:'HIDE INDEX',
+    contributors:'A-Z',
+    hideContributors:'A-Z',
+    titles:'A-Z',
+    hideTitles:'A-Z',
     previous:'‹',
     next:'›',
     first:'⇤',
     returnDoc:'↩',
     close:'×',
-    resetView:'RESET',
+    resetView:'↺',
     rotateLeft:'⟲ 90°',
     rotateRight:'⟳ 90°',
-    zoomImage:'ZOOM',
-    showText:'EXIT ZOOM',
+    zoomImage:'⌕',
+    showText:'×',
     relatedExhibition:'Related exhibition ↗'
   },
   fr:{
@@ -164,20 +164,20 @@ html body > .jsl-overlay[data-owner="jsl-peace-please-archive-v7-intro-stable"].
     openBefore:'Documents',
     openTelex:'Télex',
     openPress:'Presse',
-    contributors:'INDEX',
-    hideContributors:'MASQUER INDEX',
-    titles:'INDEX',
-    hideTitles:'MASQUER INDEX',
+    contributors:'A-Z',
+    hideContributors:'A-Z',
+    titles:'A-Z',
+    hideTitles:'A-Z',
     previous:'‹',
     next:'›',
     first:'⇤',
     returnDoc:'↩',
     close:'×',
-    resetView:'RESET',
+    resetView:'↺',
     rotateLeft:'⟲ 90°',
     rotateRight:'⟳ 90°',
-    zoomImage:'ZOOM',
-    showText:'EXIT ZOOM',
+    zoomImage:'⌕',
+    showText:'×',
     relatedExhibition:'Exposition liée ↗'
   },
   de:{
@@ -191,20 +191,20 @@ html body > .jsl-overlay[data-owner="jsl-peace-please-archive-v7-intro-stable"].
     openBefore:'Dokumente',
     openTelex:'Telex',
     openPress:'Presse',
-    contributors:'INDEX',
-    hideContributors:'INDEX AUSBLENDEN',
-    titles:'INDEX',
-    hideTitles:'INDEX AUSBLENDEN',
+    contributors:'A-Z',
+    hideContributors:'A-Z',
+    titles:'A-Z',
+    hideTitles:'A-Z',
     previous:'‹',
     next:'›',
     first:'⇤',
     returnDoc:'↩',
     close:'×',
-    resetView:'RESET',
+    resetView:'↺',
     rotateLeft:'⟲ 90°',
     rotateRight:'⟳ 90°',
-    zoomImage:'ZOOM',
-    showText:'EXIT ZOOM',
+    zoomImage:'⌕',
+    showText:'×',
     relatedExhibition:'Zugehörige Ausstellung ↗'
   }
 };
@@ -533,26 +533,48 @@ if(returnBtn){
     lock(true);
     setImageZoom(false);
     setViewerImage(x.originalUrl||'',x.url||'');
-    var captionHtmlParts=[];
+    /* =========================================================
+   PEACE PLEASE — STABLE VIEWER TITLE
+   Le titre est toujours placé avant l’image principale.
+   ========================================================= */
 
-if(x.artists && x.artists.length){
-  captionHtmlParts.push(
-    '<span class="jsl-viewer-caption-artists">' + e(x.artists.join(', ')) + '</span>'
-  );
-}
+function stableViewerTitle(item){
+  var title = '';
 
-var t = titleFor(x);
+  if(item){
+    if(item.caption && String(item.caption).trim()){
+      title = item.caption;
+    }
 
-if(t){
-  captionHtmlParts.push(
-    '<span class="jsl-viewer-caption-title">' + e(t) + '</span>'
-  );
+    if(!title && item.title){
+      title =
+        item.title[lang] ||
+        item.title.en ||
+        item.title.fr ||
+        item.title.de ||
+        '';
+    }
+
+    if(!title && item.artists && item.artists.length){
+      title = item.artists.join(', ');
+    }
+
+    if(!title && item.filename){
+      title = item.filename
+        .replace(/.[a-z0-9]+$/i, '')
+        .replace(/[-_]+/g, ' ')
+        .replace(/s+/g, ' ')
+        .trim()
+        .toUpperCase();
+    }
+  }
+
+  return String(title || '').trim();
 }
 
 /* On vide la caption native du bas */
 cap.innerHTML = '';
 
-/* Titre indépendant, placé au-dessus de l’image */
 var topCaption = overlay.querySelector('.jsl-viewer-top-caption');
 
 if(!topCaption){
@@ -560,32 +582,17 @@ if(!topCaption){
   topCaption.className = 'jsl-viewer-top-caption';
 }
 
-topCaption.innerHTML = captionHtmlParts.length
-  ? captionHtmlParts.join('<span class="jsl-viewer-caption-separator"> — </span>')
+var stableTitle = stableViewerTitle(x);
+
+topCaption.innerHTML = stableTitle
+  ? '<span class="jsl-viewer-caption-title">' + e(stableTitle) + '</span>'
   : '';
 
-topCaption.style.display = captionHtmlParts.length ? 'block' : 'none';
+topCaption.style.display = stableTitle ? 'block' : 'none';
 
-/* Placement avant le conteneur de l’image, pas dans le conteneur */
-var viewerImg =
-  overlay.querySelector('.jsl-viewer-img') ||
-  overlay.querySelector('[data-viewer-image]') ||
-  overlay.querySelector('.jsl-viewer-image') ||
-  overlay.querySelector('img');
-
-if(viewerImg){
-  var imageContainer =
-    viewerImg.closest('.jsl-viewer-stage') ||
-    viewerImg.closest('.jsl-viewer-image-wrap') ||
-    viewerImg.closest('.jsl-image-wrap') ||
-    viewerImg.closest('.jsl-viewer-media') ||
-    viewerImg.parentNode;
-
-  if(imageContainer && imageContainer.parentNode){
-    imageContainer.parentNode.insertBefore(topCaption, imageContainer);
-  }else{
-    overlay.insertBefore(topCaption, overlay.firstChild);
-  }
+/* Placement stable : toujours juste avant l’image principale */
+if(wrap && wrap.parentNode){
+  wrap.parentNode.insertBefore(topCaption, wrap);
 }else{
   overlay.insertBefore(topCaption, overlay.firstChild);
 }
@@ -652,11 +659,7 @@ function close(){
     thumbsGrid.innerHTML = '';
   }
 
-  var thumbsBtn = overlay.querySelector('[data-toggle-thumb-grid]');
-  if (thumbsBtn) {
-    thumbsBtn.textContent = 'GRID';
-    thumbsBtn.setAttribute('aria-expanded', 'false');
-  }
+  setThumbGridButton(false);
 
   overlay.classList.remove('thumbs-open');
   overlay.classList.remove('has-thumbs');
@@ -893,18 +896,194 @@ if(returnDocBtn){
   };
 }
 
-overlay.querySelector('[data-reset-view]').onclick=function(){resetViewerTransform()};
-overlay.querySelector('[data-rotate-left]').onclick=function(){rotation-=90;applyViewerTransform()};
-overlay.querySelector('[data-rotate-right]').onclick=function(){rotation+=90;applyViewerTransform()};
-overlay.querySelector('[data-toggle-image-zoom]').onclick=function(){setImageZoom(!imageZoom)};
-overlay.querySelector('[data-close]').onclick=close;
+/* =========================================================
+   PEACE PLEASE — CLOSE BUTTON
+   Répare la fermeture du viewer avec la croix ×
+   ========================================================= */
 
+var closeBtn = overlay.querySelector('[data-close]');
+if(closeBtn){
+  closeBtn.onclick = function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    if(document.activeElement && typeof document.activeElement.blur === 'function'){
+      document.activeElement.blur();
+    }
+
+    close();
+  };
+}
+
+overlay.querySelector('[data-reset-view]').onclick=function(){
+  rotation = 0;
+  setImageZoom(false);
+  resetViewerTransform();
+  applyViewerTransform();
+};
+
+var rotateLeftBtn = overlay.querySelector('[data-rotate-left]');
+if(rotateLeftBtn){
+  rotateLeftBtn.onclick = function(){
+    rotation -= 90;
+    applyViewerTransform();
+  };
+}
+
+var rotateRightBtn = overlay.querySelector('[data-rotate-right]');
+if(rotateRightBtn){
+  rotateRightBtn.onclick = function(){
+    rotation += 90;
+    applyViewerTransform();
+  };
+}
+
+var zoomImageBtn = overlay.querySelector('[data-toggle-image-zoom]');
+if(zoomImageBtn){
+  zoomImageBtn.onclick = function(){
+    setImageZoom(!imageZoom);
+  };
+}
+/* =========================================================
+   PEACE PLEASE — VIEWER THUMB GRID
+   Fix: click on grid thumbnail must reopen the document via show()
+   so the image title is rebuilt correctly.
+   ========================================================= */
+
+function viewerThumbLabel(item, index){
+  var label = '';
+
+  if(item){
+    if(item.caption && String(item.caption).trim()){
+      label = item.caption;
+    }else if(item.title){
+      label = item.title[lang] || item.title.en || item.title.fr || item.title.de || '';
+    }
+
+    if(!label && item.artists && item.artists.length){
+      label = item.artists.join(', ');
+    }
+
+    if(!label && item.filename){
+      label = item.filename;
+    }
+  }
+
+  return label || ('Document ' + (index + 1));
+}
+function setThumbGridButton(isOpen){
+  var thumbsBtn = overlay.querySelector('[data-toggle-thumb-grid]');
+  if(!thumbsBtn) return;
+
+  var label = isOpen ? '×' : '▦';
+
+  thumbsBtn.textContent = label;
+  thumbsBtn.innerHTML = label;
+  thumbsBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  thumbsBtn.setAttribute('title', isOpen ? 'Close grid' : 'Grid');
+  thumbsBtn.setAttribute('aria-label', isOpen ? 'Close grid' : 'Grid');
+}
+
+function closeThumbGridOnly(){
+  var thumbsPanel = overlay.querySelector('[data-viewer-thumbs-panel]');
+  var thumbsGrid = overlay.querySelector('[data-viewer-thumbs-grid]');
+  var thumbsBtn = overlay.querySelector('[data-toggle-thumb-grid]');
+
+  if(thumbsPanel){
+    thumbsPanel.hidden = true;
+    thumbsPanel.classList.remove('is-open');
+    thumbsPanel.style.display = '';
+  }
+
+ setThumbGridButton(false);
+
+  overlay.classList.remove('thumbs-open');
+  overlay.classList.remove('has-thumbs');
+  overlay.classList.remove('grid-open');
+  overlay.classList.remove('is-grid');
+
+  if(thumbsGrid){
+    thumbsGrid.innerHTML = '';
+  }
+}
+
+function openThumbGrid(){
+  var thumbsPanel = overlay.querySelector('[data-viewer-thumbs-panel]');
+  var thumbsGrid = overlay.querySelector('[data-viewer-thumbs-grid]');
+  var thumbsBtn = overlay.querySelector('[data-toggle-thumb-grid]');
+
+  if(!thumbsPanel || !thumbsGrid || !currentList || !currentList.length) return;
+
+  thumbsGrid.innerHTML = currentList.map(function(item, i){
+    var src = (item && (item.url || item.originalUrl)) ? (item.url || item.originalUrl) : '';
+    var label = viewerThumbLabel(item, i);
+
+    return (
+      '<button type="button" class="jsl-thumb-card" data-thumb-index="' + i + '">' +
+        '<img loading="lazy" src="' + e(src) + '" alt="' + e(label) + '">' +
+        '<div class="jsl-thumb-label">' + e(label) + '</div>' +
+      '</button>'
+    );
+  }).join('');
+
+  thumbsGrid.querySelectorAll('[data-thumb-index]').forEach(function(card){
+    card.onclick = function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      var index = parseInt(card.getAttribute('data-thumb-index'), 10) || 0;
+
+      closeThumbGridOnly();
+
+      /* Important : show() reconstruit l’image ET le titre */
+      show(currentList, index);
+    };
+  });
+
+   thumbsPanel.hidden = false;
+  thumbsPanel.classList.add('is-open');
+  thumbsPanel.style.display = 'block';
+
+  setThumbGridButton(true);
+
+
+  overlay.classList.add('thumbs-open');
+  overlay.classList.add('has-thumbs');
+  overlay.classList.add('grid-open');
+  overlay.classList.add('is-grid');
+}
+
+var thumbGridBtn = overlay.querySelector('[data-toggle-thumb-grid]');
+if(thumbGridBtn){
+  thumbGridBtn.onclick = function(ev){
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    var thumbsPanel = overlay.querySelector('[data-viewer-thumbs-panel]');
+    var isOpen = thumbsPanel && !thumbsPanel.hidden;
+
+    if(isOpen){
+      closeThumbGridOnly();
+    }else{
+      openThumbGrid();
+    }
+  };
+}
 if(viewerArtistsBtn){
-  viewerArtistsBtn.onclick=function(){
+  viewerArtistsBtn.onclick=function(ev){
+    if(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+
+    /* Ferme la grille avant d’ouvrir A-Z */
+    closeThumbGridOnly();
+
     if(viewerArtistsPanel){
       viewerArtistsPanel.classList.toggle('is-open');
       viewerArtistsBtn.classList.toggle('is-active', viewerArtistsPanel.classList.contains('is-open'));
     }
+
     renderViewerControls();
   };
 }
@@ -917,5 +1096,7 @@ document.addEventListener('keydown',function(ev){
 });
 
 render();
+setThumbGridButton(false);
+
 })();
 </script>
